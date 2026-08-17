@@ -27,7 +27,7 @@ jobs:
           echo "/opt/flutter/bin" >> $GITHUB_PATH
 
       - name: Pre-download Flutter toolchain
-        run: flutter doctor -v # 此时 PATH 已包含 flutter
+        run: flutter doctor -v
 
       # ---------- 安装 Linux 构建依赖 ----------
       - name: Install Linux build dependencies
@@ -37,6 +37,14 @@ jobs:
             mesa-utils libvulkan-dev desktop-file-utils wget \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libunwind-dev libsecret-1-dev
+
+      # ---------- 关键修复：安装 ARM64 版 appimagetool ----------
+      - name: Install AppImageTool (ARM64)
+        run: |
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage -O /tmp/appimagetool
+          chmod +x /tmp/appimagetool
+          sudo mv /tmp/appimagetool /usr/bin/appimagetool
+          sudo apt-get install -y libfuse2
 
       # ---------- 构建 ----------
       - name: Get Dart dependencies
