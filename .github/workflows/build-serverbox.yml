@@ -1,23 +1,23 @@
 name: Build ServerBox Linux ARM64
 
 on:
-  workflow_dispatch:  # 支持手动触发
+  workflow_dispatch: # 支持手动触发
   push:
     tags:
-      - 'v*'           # 推送 tag 时自动触发
+      - "v*" # 推送 tag 时自动触发
 
 jobs:
   build-linux-arm64:
-    runs-on: ubuntu-24.04-arm  # 使用 ARM64 原生 Runner
+    runs-on: ubuntu-24.04-arm # 使用 ARM64 原生 Runner
 
     steps:
       # 1. 从目标仓库拉取代码
       - name: Checkout ServerBox repository
         uses: actions/checkout@v4
         with:
-          repository: LollipopKit/flutter_server_box  # 指定官方仓库
-          ref: main                                  # 可改为其他分支或 tag
-          submodules: recursive                      # 拉取子模块[reference:0]
+          repository: LollipopKit/flutter_server_box # 指定官方仓库
+          ref: main # 可改为其他分支或 tag
+          submodules: recursive # 拉取子模块[reference:0]
           persist-credentials: false
           fetch-depth: 0
 
@@ -25,8 +25,8 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: '3.24.5'  # 可参考官方 CI 调整版本
+          channel: "stable"
+          flutter-version: "3.22.4" # 可参考官方 CI 调整版本
 
       # 3. 安装 Linux 桌面应用构建依赖
       - name: Install Linux dependencies
@@ -43,7 +43,7 @@ jobs:
 
       # 5. 执行 Linux ARM64 构建
       - name: Build Linux ARM64
-        run: dart run fl_build -p linux  # 使用官方构建工具
+        run: dart run fl_build -p linux # 使用官方构建工具
 
       # 6. 上传构建产物
       - name: Upload artifacts
