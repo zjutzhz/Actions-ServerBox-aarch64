@@ -1,36 +1,36 @@
 name: Build ServerBox Linux ARM64
 
 on:
-  workflow_dispatch: # 支持手动触发
+  workflow_dispatch:
   push:
     tags:
-      - "v*" # 推送 tag 时自动触发
+      - "v*"
 
 jobs:
   build-linux-arm64:
-    runs-on: ubuntu-24.04-arm # 使用 ARM64 原生 Runner
+    runs-on: ubuntu-24.04-arm
 
     steps:
-      # 1. 从目标仓库拉取代码
       - name: Checkout ServerBox repository
         uses: actions/checkout@v4
         with:
-          repository: LollipopKit/flutter_server_box # 指定官方仓库
-          ref: main # 可改为其他分支或 tag
-          submodules: recursive # 拉取子模块[reference:0]
+          repository: LollipopKit/flutter_server_box
+          ref: main
+          submodules: recursive
           persist-credentials: false
           fetch-depth: 0
 
-      # 2. 安装 Flutter SDK
-      - name: Install Flutter (git clone)
+      # ---------- 安装 Flutter（手动 git clone） ----------
+      - name: Install Flutter SDK
         run: |
           git clone https://github.com/flutter/flutter.git --depth 1 -b stable /opt/flutter
           echo "/opt/flutter/bin" >> $GITHUB_PATH
-          # 缓存预热（避免首次构建时下载大量内容）
-          flutter doctor -v
 
-      # 3. 安装 Linux 桌面应用构建依赖
-      - name: Install Linux dependencies
+      - name: Pre-download Flutter toolchain
+        run: flutter doctor -v # 此时 PATH 已包含 flutter
+
+      # ---------- 安装 Linux 构建依赖 ----------
+      - name: Install Linux build dependencies
         run: |
           sudo apt update
           sudo apt install -y clang cmake ninja-build pkg-config libgtk-3-dev \
@@ -38,15 +38,13 @@ jobs:
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libunwind-dev libsecret-1-dev
 
-      # 4. 获取 Dart 项目依赖
-      - name: Get dependencies
+      # ---------- 构建 ----------
+      - name: Get Dart dependencies
         run: flutter pub get
 
-      # 5. 执行 Linux ARM64 构建
       - name: Build Linux ARM64
-        run: dart run fl_build -p linux # 使用官方构建工具
+        run: dart run fl_build -p linux
 
-      # 6. 上传构建产物
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
