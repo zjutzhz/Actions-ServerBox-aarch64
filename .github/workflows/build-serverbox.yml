@@ -22,11 +22,12 @@ jobs:
           fetch-depth: 0
 
       # 2. 安装 Flutter SDK
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: "3.22.4" # 可参考官方 CI 调整版本
+      - name: Install Flutter (git clone)
+        run: |
+          git clone https://github.com/flutter/flutter.git --depth 1 -b stable /opt/flutter
+          echo "/opt/flutter/bin" >> $GITHUB_PATH
+          # 缓存预热（避免首次构建时下载大量内容）
+          flutter doctor -v
 
       # 3. 安装 Linux 桌面应用构建依赖
       - name: Install Linux dependencies
